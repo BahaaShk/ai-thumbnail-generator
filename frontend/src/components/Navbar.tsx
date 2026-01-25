@@ -37,11 +37,10 @@ export default function Navbar() {
             </motion.nav>
 
             <div className={`fixed inset-0 z-100 bg-black/40 backdrop-blur flex flex-col items-center justify-center text-lg gap-8 md:hidden transition-transform duration-400 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
-                {navlinks.map((link: INavLink) => (
-                    <NavLink key={link.name} to={link.href} onClick={() => setIsOpen(false)}>
-                        {link.name}
-                    </NavLink>
-                ))}
+                            <Link to='/' className="hover:text-pink-500 transition">Home</Link>
+                    <Link to='/generate' className="hover:text-pink-500 transition">Generate</Link>
+                    <Link to='/my-generation' className="hover:text-pink-500 transition">My Generations</Link>
+                    <Link to='#' className="hover:text-pink-500 transition">Contact</Link>
                 <button onClick={() => setIsOpen(false)} className="active:ring-3 active:ring-white aspect-square size-10 p-1 items-center justify-center bg-pink-600 hover:bg-pink-700 transition text-white rounded-md flex">
                     <XIcon />
                 </button>
