@@ -5,9 +5,9 @@ import { motion } from "motion/react";
 
 export default function HeroSection() {
     const specialFeatures = [
-        "No credit card",
-        "30 days free trial",
-        "Setup in 10 minutes",
+        "No design skills needed",
+        "Fast Generation",
+        "High CTR templates",
     ];
 
     return (
