@@ -16,7 +16,7 @@ export default function CTASection() {
                     viewport={{ once: true }}
                     transition={{ type: "spring", stiffness: 280, damping: 70, mass: 1 }}
                 >
-                    Ready to try-out this app?
+                    Ready to go viral?
                 </motion.h1>
                 <motion.p className="bg-linear-to-r from-white to-pink-400 text-transparent bg-clip-text text-lg"
                     initial={{ y: 80, opacity: 0 }}
@@ -24,7 +24,7 @@ export default function CTASection() {
                     viewport={{ once: true }}
                     transition={{ type: "spring", stiffness: 200, damping: 70, mass: 1 }}
                 >
-                    Your next favourite tool is just one click away.
+                    Join thousands of creators using AI to boost their CTR.
                 </motion.p>
             </div>
             <motion.button className="px-12 py-3 text-slate-800 bg-white hover:bg-slate-200 rounded-full text-sm mt-4"
@@ -33,7 +33,7 @@ export default function CTASection() {
                 viewport={{ once: true }}
                 transition={{ type: "spring", stiffness: 280, damping: 70, mass: 1 }}
             >
-                Get Started
+                Get Free Thumbnail
             </motion.button>
         </motion.div>
     );

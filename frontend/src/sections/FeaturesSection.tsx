@@ -37,7 +37,7 @@ export default function FeaturesSection() {
                     viewport={{ once: true }}
                     transition={{ type: "spring", stiffness: 320, damping: 70, mass: 1 }}
                 >
-                    PrebuiltUI helps you build faster by transforming your design vision into fully functional, production-ready UI components.
+                 Our AI understands what makes a video go viral and designs thumbnails accordingly.
                 </motion.p>
                 <div className="grid grid-cols-1 md:grid-cols-3 mt-8 gap-10">
                     <motion.div className="md:col-span-2"
@@ -55,10 +55,10 @@ export default function FeaturesSection() {
                         transition={{ delay: 0.15, type: "spring", stiffness: 320, damping: 70, mass: 1 }}
                     >
                         <img src="/assets/features-showcase-2.png" alt="features showcase" width={1000} height={500} className="hover:-translate-y-0.5 transition duration-300" />
-                        <h3 className="text-[24px]/7.5 text-slate-300 font-medium mt-6">Better design with highest revenue and profits </h3>
-                        <p className="text-slate-300 mt-2">PrebuiltUI empowers you to build beautifully and scale effortlessly.</p>
+                        <h3 className="text-[24px]/7.5 text-slate-300 font-medium mt-6">boost your views with AI-optimized designs </h3>
+                        <p className="text-slate-300 mt-2">Stop guessing and start ranking. Our AI creates designs proven to capture attention.</p>
                         <a href="https://prebuiltui.com" className="group flex items-center gap-2 mt-4 text-pink-600 hover:text-pink-700 transition">
-                            Learn more about the product
+                            Start generating for free
                             <ArrowUpRight className="size-5 group-hover:translate-x-0.5 transition duration-300" />
                         </a>
                     </motion.div>
