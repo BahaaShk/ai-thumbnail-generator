@@ -84,7 +84,7 @@ export default function Footer() {
         </div>
         <p className="mt-3 text-center">
           &copy; {new Date().getFullYear()}{" "}
-          <a href="https://prebuiltui.com?utm_source=pixels">Thumblify - GreatStack</a>
+          <a href="https://prebuiltui.com?utm_source=pixels">BahaaShk</a>
         </p>
       </motion.div>
     </footer>
