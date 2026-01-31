@@ -64,7 +64,7 @@ const Login = () => {
 
             <p onClick={() => setState(prev => prev === "login" ? "register" : "login") } className="text-gray-400 text-sm mt-3 mb-11 cursor-pointer" >
                 {state === "login" ? "Don't have an account?" : "Already have an account?"}
-                <span className="text-indigo-400 hover:underline ml-1">click here</span>
+                <span className="text-indigo-400 hover:underline ml-1">Click Here</span>
             </p>
         </form>
     </div>
