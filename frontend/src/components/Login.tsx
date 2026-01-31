@@ -54,7 +54,7 @@ const Login = () => {
 
             <div className="mt-4 text-left">
                 <button className="text-sm text-indigo-400 hover:underline">
-                    Forget password?
+                    Forgot password?
                 </button>
             </div>
 

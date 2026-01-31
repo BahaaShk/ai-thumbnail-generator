@@ -21,16 +21,16 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8 transition duration-500">
-          <Link to="/" className="hover:text-pink-500 transition">
+          <Link to="/" className="hover:text-indigo-800 transition">
             Home
           </Link>
-          <Link to="/generate" className="hover:text-pink-500 transition">
+          <Link to="/generate" className="hover:text-indigo-800 transition">
             Generate
           </Link>
-          <Link to="/my-generation" className="hover:text-pink-500 transition">
+          <Link to="/my-generation" className="hover:text-indigo-800 transition">
             My Generations
           </Link>
-          <Link to="#" className="hover:text-pink-500 transition">
+          <Link to="#" className="hover:text-indigo-800 transition">
             Contact
           </Link>
         </div>
@@ -66,7 +66,7 @@ export default function Navbar() {
         </Link>
         <button
           onClick={() => setIsOpen(false)}
-          className="active:ring-3 active:ring-white aspect-square size-10 p-1 items-center justify-center bg-pink-600 hover:bg-pink-700 transition text-white rounded-md flex"
+          className="active:ring-3 active:ring-white aspect-square size-10 p-1 items-center justify-center bg-indigo-800 hover:bg-indigo-800 transition text-white rounded-md flex"
         >
           <XIcon />
         </button>
