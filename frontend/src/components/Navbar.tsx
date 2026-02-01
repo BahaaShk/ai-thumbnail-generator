@@ -37,7 +37,7 @@ export default function Navbar() {
 
         <button
           onClick={() => navigate("/login")}
-          className="hidden md:block px-6 py-2.5 bg-pink-600 hover:bg-blue-700 active:scale-95 transition-all rounded-full"
+          className="hidden md:block px-6 py-2.5 bg-indigo-600 hover:bg-blue-700 active:scale-95 transition-all rounded-full"
         >
           Get Started
         </button>

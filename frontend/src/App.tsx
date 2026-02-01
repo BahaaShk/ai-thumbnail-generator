@@ -8,12 +8,14 @@ import Generate from "./pages/Generate";
 import MyGeneration from "./pages/MyGeneration";
 import YTPreview from "./pages/YTPreview";
 import Login from "./components/Login";
+import SoftBackdrop from "./components/SoftBackdrop";
 
 export default function App() {
     return (
         <>
             <LenisScroll />
             <Navbar />
+            {/* <SoftBackdrop /> */}
             <Routes>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/generate" element={<Generate />} />
