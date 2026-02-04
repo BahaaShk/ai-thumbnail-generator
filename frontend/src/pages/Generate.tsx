@@ -29,22 +29,56 @@ const Generate = () => {
                 </div>
 
                 <div className=" space-y-5">
-{/* Title input  */}
-<div className=" space-y-2">
-  <label className=" block text-sm font-medium">Title or Topic</label>
-  <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g, 10 Tips for better sleep" maxLength={100} className=" w-full px-4 py-3 rounded-lg border border-white/12 bg-black/20 text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-  <div className=" flex justify-end">
-    <span className=" text-xs text-zinc-400">{title.length}/100</span>
-  </div>
-</div>
+                  {/* Title input  */}
+                  <div className=" space-y-2">
+                    <label className=" block text-sm font-medium">
+                      Title or Topic
+                    </label>
+                    <input
+                      type="text"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="e.g, 10 Tips for better sleep"
+                      maxLength={100}
+                      className=" w-full px-4 py-3 rounded-lg border border-white/12 bg-black/20 text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    <div className=" flex justify-end">
+                      <span className=" text-xs text-zinc-400">
+                        {title.length}/100
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Aspect Ratio Selector */}
+
+                  {/* Style Selector */}
+
+                  {/* Color Scheme Selector */}
+
+                  {/* Details  */}
+
+                  <div className=" space-y-2">
+                    <label className=" block text-sm font-medium">
+                      Additional Prompts{" "}
+                      <span className=" text-zinc-400 text-xs">(optional)</span>
+                    </label>
+                    <textarea
+                      value={additionalDetails}
+                      onChange={(e) => setAdditionalDetails(e.target.value)}
+                      rows={3}
+                      placeholder="Add any specific elements, mood, or style preferences... "
+                      className=" w-full px-4
+ py-3 rounded-lg border border-white/10 bg-white/6 text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+                    />
+                  </div>
                 </div>
 
                 {/* button */}
-                {
-                  !id && (
-                    <button className=" text-[15px] w-full py-3.5 rounded-xl font-medium bg-linear-to-b from-indigo-500 to-indigo-600 hover:from-indigo-700 disabled:cursor-not-allowed transition-colors">{loading ? "Generating ... " : "Generate Thumbnail"}</button>
-                  )
-                }
+                {!id && (
+                  <button className=" text-[15px] w-full py-3.5 rounded-xl font-medium bg-linear-to-b from-indigo-500 to-indigo-600 hover:from-indigo-700 disabled:cursor-not-allowed transition-colors">
+                    {loading ? "Generating ... " : "Generate Thumbnail"}
+                  </button>
+                )}
               </div>
             </div>
             {/* right panel */}
