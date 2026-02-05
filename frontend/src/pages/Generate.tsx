@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { colorSchemes, type AspectRatio, type IThumbnail, type ThumbnailStyle } from "../assets/assets";
 import SoftBackdrop from "../components/SoftBackdrop";
 import AspectRatioSelector from "../components/AspectRatioSelector";
+import StyleSelector from "../components/StyleSelector";
 
 const Generate = () => {
   const { id } = useParams();
@@ -57,7 +58,7 @@ const Generate = () => {
                   {/* Aspect Ratio Selector */}
 <AspectRatioSelector value={aspectRatio} onChange={setAspectRatio} />
                   {/* Style Selector */}
-
+<StyleSelector />
                   {/* Color Scheme Selector */}
 
                   {/* Details  */}
