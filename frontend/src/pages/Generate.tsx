@@ -58,7 +58,7 @@ const Generate = () => {
                   {/* Aspect Ratio Selector */}
 <AspectRatioSelector value={aspectRatio} onChange={setAspectRatio} />
                   {/* Style Selector */}
-<StyleSelector />
+<StyleSelector value={style} onChange={setStyle} isOpen={styleDropdownOpen} setIsOpen={setStyleDropdownOpen} />
                   {/* Color Scheme Selector */}
 
                   {/* Details  */}
