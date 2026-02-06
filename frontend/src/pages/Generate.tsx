@@ -5,6 +5,7 @@ import SoftBackdrop from "../components/SoftBackdrop";
 import AspectRatioSelector from "../components/AspectRatioSelector";
 import StyleSelector from "../components/StyleSelector";
 import ColorSchemeSelector from "../components/ColorSchemeSelector";
+import PreviewPanel from "../components/PreviewPanel";
 
 const Generate = () => {
   const { id } = useParams();
@@ -63,7 +64,6 @@ const Generate = () => {
                   {/* Color Scheme Selector */}
 <ColorSchemeSelector value={colorSchemeId} onChange={setColorSchemeId} />
                   {/* Details  */}
-
                   <div className=" space-y-2">
                     <label className=" block text-sm font-medium">
                       Additional Prompts{" "}
@@ -89,7 +89,12 @@ const Generate = () => {
               </div>
             </div>
             {/* right panel */}
-            <div className=""></div>
+            <div>
+              <div className=" p-6 rounded-2xl bg-white/8 border border-white/10 shadow-xl">
+                <h2 className=" text-lg font-semibold text-zinc-100">Preview</h2>
+                <PreviewPanel thumbnail={thumbnail} isLoading = {loading} aspectRatio={aspectRatio} />
+              </div>
+            </div>
           </div>
         </main>
       </div>
