@@ -11,7 +11,7 @@ const PreviewPanel = ({
   aspectRatio: AspectRatio;
 }) => {
   const aspectClasses = {
-    "16:9": "apect-video",
+    "16:9": "aspect-video",
     "1:1": "aspect-square",
     "9:16": "aspect-[9/16]",
   } as Record<AspectRatio, string>;
