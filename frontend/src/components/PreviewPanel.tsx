@@ -72,7 +72,7 @@ const PreviewPanel = ({
               </div>
               <div className="px-4 text-center">
                 <p className="text-zinc-200 ">Generate your first thumbnail</p>
-                <p className=" mt-1 text-xs text-zinc-400">Fill put the form and click Generate.</p>
+                <p className=" mt-1 text-xs text-zinc-400">Fill put the form and click Generate</p>
               </div>
             </div>
           )
