@@ -1,6 +1,12 @@
+import { useState } from "react"
 import SoftBackdrop from "../components/SoftBackdrop"
+import type { IThumbnail } from "../assets/assets"
 
 const MyGeneration = () => {
+
+const [thumbnails, setThumbnails] = useState<IThumbnail>([])
+const [loading, setLoading] = useState(false)
+
   return (
     <>
     <SoftBackdrop />
