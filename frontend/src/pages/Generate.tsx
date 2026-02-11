@@ -114,7 +114,7 @@ if(id){
             {/* right panel */}
             <div>
               <div className=" p-6 rounded-2xl bg-white/8 border border-white/10 shadow-xl">
-                <h2 className=" text-lg font-semibold text-zinc-100">Preview</h2>
+                <h2 className=" text-lg font-semibold text-zinc-100 mb-2">Preview</h2>
                 <PreviewPanel thumbnail={thumbnail} isLoading = {loading} aspectRatio={aspectRatio} />
               </div>
             </div>

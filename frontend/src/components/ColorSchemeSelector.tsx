@@ -9,7 +9,7 @@ const ColorSchemeSelector = ({value, onChange} : {value: string; onChange:(color
   {
     colorSchemes.map((scheme) => (
       <button key={scheme.id} onClick={() => onChange(scheme.id)}
-      className={`relative rounded-lg transition-all ${value === scheme.id && 'ring-2 ring-indigo-500' }`} title={scheme.name}
+      className={`relative rounded-lg transition-all ${value === scheme.id && 'ring-4 ring-indigo-600' }`} title={scheme.name}
       >
         <div className=" flex h-10 rounded-lg overflow-hidden">
           {scheme.colors.map((color,i) => (
