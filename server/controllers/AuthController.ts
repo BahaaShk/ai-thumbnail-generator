@@ -20,7 +20,7 @@ export const registerUser = async (req: Request, res: Response) => {
     const newUser = new User({ name, email, password: hashedPassword });
     await newUser.save();
 
-    //Setting uuser data in session
+    //Setting user data in session
 
     req.session.isLoggedIn = true;
     req.session.userId = newUser._id;
@@ -53,12 +53,11 @@ export const loginUser = async (req: Request, res: Response) => {
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-    if(!isPasswordCorrect){
-            return res.status(400).json({ message: "Passwords doesn't match" });
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ message: "Invalid email or password" });
     }
 
-
-    // Setting uuser data in session
+    // Setting user data in session
 
     req.session.isLoggedIn = true;
     req.session.userId = user._id;
@@ -77,34 +76,32 @@ export const loginUser = async (req: Request, res: Response) => {
   }
 };
 
-
 // Controllers for user logout
 
 export const logoutUser = async (req: Request, res: Response) => {
   req.session.destroy((error: any) => {
-if(error){
-  console.log(error)
-  return res.status(500).json({message: error.message})
-}
-  })
-  return res.json({message: 'Logout Successful'})
-}
+    if (error) {
+      console.log(error);
+      return res.status(500).json({ message: error.message });
+    }
+  });
+  return res.json({ message: "Logout Successful" });
+};
 
 // Controllers for user logout
 
 export const verifyUser = async (req: Request, res: Response) => {
   try {
-    const {userId} = req.session;
-    const user = await User.findById(userId).select('-password')
+    const { userId } = req.session;
+    const user = await User.findById(userId).select("-password");
 
-    if(!user){
-return res.status(400).json({message:'Invalid User'})
+    if (!user) {
+      return res.status(400).json({ message: "Invalid User" });
     }
 
-    return res.json({user});
-    
-  } catch (error:any) {
-      console.log(error);
+    return res.json({ user });
+  } catch (error: any) {
+    console.log(error);
     res.status(500).json({ message: error.message });
   }
-}
+};
