@@ -1,15 +1,11 @@
 import { Request, Response } from "express";
 import Thumbnail from "../models/Thumbnail.js";
-import {
-  GenerateContentConfig,
-  HarmBlockThreshold,
-  HarmCategory,
-} from "@google/genai";
-import ai from "../config/ai.js";
-import path from "path";
-import fs from "fs";
-import { v2 as cloudinary } from "cloudinary";
+import axios, { AxiosResponse } from "axios";
+import imagekit from "../config/imagekit.js";
 
+/* -------------------------
+   Prompt configuration
+   ------------------------- */
 const stylePrompts = {
   "Bold & Graphic":
     "eye-catching thumbnail, bold typography, vibrant colors, expressive facial reaction, dramatic lighting, high contrast, click-worthy composition, professional style",
@@ -21,7 +17,7 @@ const stylePrompts = {
     "photorealistic thumbnail, ultra-realistic lighting, natural skin tones, candid moment, DSLR-style photography, lifestyle realism, shallow depth of field",
   Illustrated:
     "illustrated thumbnail, custom digital illustration, stylized characters, bold outlines, vibrant colors, creative cartoon or vector art style",
-};
+} as const;
 
 const colorSchemeDescriptions = {
   vibrant:
@@ -39,9 +35,60 @@ const colorSchemeDescriptions = {
     "cool blue and teal tones, aquatic color palette, fresh and clean atmosphere",
   pastel:
     "soft pastel colors, low saturation, gentle tones, calm and friendly aesthetic",
-};
+} as const;
 
+/* -------------------------
+   Helper: call Hugging Face Router
+   - Uses router.huggingface.co (replacement for api-inference)
+   - validateStatus accepts all so we can inspect error body
+   ------------------------- */
+async function callHuggingFaceRouter(
+  modelId: string,
+  prompt: string
+): Promise<AxiosResponse<ArrayBuffer>> {
+  const url = `https://router.huggingface.co/models/${modelId}`;
+  return axios.post(
+    url,
+    {
+      inputs: prompt,
+      options: { wait_for_model: true },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.HF_API_KEY}`,
+        "Content-Type": "application/json",
+        "User-Agent": "thumbnail-service/1.0",
+      },
+      responseType: "arraybuffer",
+      timeout: 120000,
+      validateStatus: () => true,
+    }
+  );
+}
+
+/* -------------------------
+   Helper: detect JSON error in arraybuffer
+   - returns parsed JSON if buffer contains JSON, otherwise null
+   ------------------------- */
+function tryParseBufferAsJson(buf: ArrayBuffer | Buffer | any): any | null {
+  try {
+    const buffer = Buffer.isBuffer(buf) ? buf : Buffer.from(buf);
+    const text = buffer.toString("utf8").trim();
+    if (!text) return null;
+    if (text[0] === "{" || text[0] === "[") {
+      return JSON.parse(text);
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/* -------------------------
+   Main controller
+   ------------------------- */
 export const generateThumbnail = async (req: Request, res: Response) => {
+  let thumbnail: any = null;
   try {
     const { userId } = req.session;
     const {
@@ -52,7 +99,8 @@ export const generateThumbnail = async (req: Request, res: Response) => {
       color_scheme,
       text_overlay,
     } = req.body;
-    const thumbnail = await Thumbnail.create({
+
+    thumbnail = await Thumbnail.create({
       userId,
       title,
       prompt_used: user_prompt,
@@ -64,116 +112,144 @@ export const generateThumbnail = async (req: Request, res: Response) => {
       isGenerating: true,
     });
 
-    const model = "gemini-3-pro-image-preview";
-    const generationConfig: GenerateContentConfig = {
-      maxOutputTokens: 32768,
-      temperature: 1,
-      topP: 0.95,
-      responseModalities: ["IMAGE"],
-      imageConfig: {
-        aspectRatio: aspect_ratio || "16:9",
-        imageSize: "1K",
-      },
-      safetySettings: [
-        {
-          category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-          threshold: HarmBlockThreshold.OFF,
-        },
-
-        {
-          category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-          threshold: HarmBlockThreshold.OFF,
-        },
-
-        {
-          category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-          threshold: HarmBlockThreshold.OFF,
-        },
-
-        {
-          category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-          threshold: HarmBlockThreshold.OFF,
-        },
-      ],
-    };
-
+    // Build prompt
     let prompt = `Create a ${stylePrompts[style as keyof typeof stylePrompts]} for: "${title}" `;
-
     if (color_scheme) {
-      prompt += `Use a ${colorSchemeDescriptions[color_scheme as keyof typeof colorSchemeDescriptions]} color scheme.`;
+      prompt += `Use a ${colorSchemeDescriptions[color_scheme as keyof typeof colorSchemeDescriptions]} color scheme. `;
     }
-
     if (user_prompt) {
-      prompt += `Additional details: ${user_prompt}`;
+      prompt += `Additional details: ${user_prompt} `;
     }
+    prompt += `The thumbnail should be ${aspect_ratio}, visually stunning, and designed to maximize click-through rate. Make it bold, professional, and impossible to ignore.`;
 
-    prompt += `The thumbnail should be ${aspect_ratio}, visually stunning, and designed to maximize click-through rate. Make it bold, professional, and impossible to ignore. `;
+    // Models to try in order (fallbacks)
+    const modelsToTry = [
+      "stabilityai/stable-diffusion-3.5",
+      "runwayml/stable-diffusion-v1-5",
+      "stabilityai/stable-diffusion-xl-1024-v1-0",
+    ];
 
-    // Generate the image using the ai model
-
-    const response: any = ai.models.generateContent({
-      model,
-      contents: [prompt],
-      config: generationConfig,
-    });
-
-    // check if response is valid
-
-    if (!response?.candidates?.[0]?.content?.parts) {
-      throw new Error("Unexpected response");
-    }
-
-    const parts = response.candidates[0].content.parts;
-
+    let lastError: any = null;
     let finalBuffer: Buffer | null = null;
+    let hfResponseHeaders: any = null;
 
-    for (const part of parts) {
-      if (part.inlineData) {
-        finalBuffer = Buffer.from(part.inlineData.data, "base64");
+    for (const modelId of modelsToTry) {
+      try {
+        console.log(`Calling Hugging Face Router model: ${modelId}`);
+        const hfResp = await callHuggingFaceRouter(modelId, prompt);
+        hfResponseHeaders = hfResp.headers || {};
+
+        // Try to parse JSON error even if content-type is wrong
+        const parsedJson = tryParseBufferAsJson(hfResp.data);
+        if (parsedJson && (parsedJson.error || parsedJson.detail || parsedJson.message)) {
+          console.log(`Hugging Face Router returned JSON error for ${modelId}:`, parsedJson);
+          lastError = { model: modelId, status: hfResp.status, body: parsedJson };
+          if (hfResp.status >= 400 && hfResp.status < 500 && hfResp.status !== 429) {
+            break;
+          }
+          continue;
+        }
+
+        // If content-type indicates JSON, parse and treat as error
+        const contentType = (hfResp.headers["content-type"] || "").toLowerCase();
+        if (contentType.includes("application/json")) {
+          const parsed = tryParseBufferAsJson(hfResp.data);
+          console.log(`Hugging Face Router JSON response for ${modelId}:`, parsed);
+          lastError = { model: modelId, status: hfResp.status, body: parsed };
+          if (hfResp.status >= 400 && hfResp.status < 500 && hfResp.status !== 429) {
+            break;
+          }
+          continue;
+        }
+
+        // If status indicates success and data length looks like an image, accept it
+        if (hfResp.status >= 200 && hfResp.status < 300 && hfResp.data) {
+          const buffer = Buffer.from(hfResp.data);
+          // Basic image signature checks (PNG/JPEG)
+          const isPng = buffer.slice(0, 8).toString("hex").startsWith("89504e470d0a1a0a");
+          const isJpeg = buffer.slice(0, 3).toString("hex") === "ffd8ff";
+          if (isPng || isJpeg) {
+            finalBuffer = buffer;
+            console.log(`Received image from model ${modelId} (content-type: ${contentType})`);
+            break;
+          } else {
+            // Not a standard PNG/JPEG signature — still accept but log
+            console.log(`Response from ${modelId} does not match PNG/JPEG signatures. content-type: ${contentType}`);
+            finalBuffer = buffer;
+            break;
+          }
+        }
+
+        // Otherwise record and continue
+        lastError = { model: modelId, status: hfResp.status, headers: hfResp.headers };
+      } catch (innerErr: any) {
+        console.log(`Error calling model ${modelId}:`, innerErr?.message || innerErr);
+        lastError = { model: modelId, error: innerErr?.message || innerErr };
       }
     }
 
-    const filename = `final-output-${Date.now()}.png`;
-    const filePath = path.join("images", filename);
+    // If we didn't get an image buffer, return a clear error
+    if (!finalBuffer) {
+      thumbnail.isGenerating = false;
+      await thumbnail.save();
+      console.log("No image buffer obtained. Last error:", lastError, "HF headers:", hfResponseHeaders);
+      return res.status(502).json({
+        message: "Failed to generate image from Hugging Face models",
+        lastError,
+        hfResponseHeaders,
+      });
+    }
 
-    //  create the images directory if it doesn't exist
+    // Upload to ImageKit
+    try {
+      const filename = `final-output-${Date.now()}.png`;
+      const uploadResult = await imagekit.upload({
+        file: finalBuffer,
+        fileName: filename,
+      });
 
-    fs.mkdirSync("images", { recursive: true });
+      console.log("ImageKit upload result:", uploadResult);
 
-    //write final image to the file
-    fs.writeFileSync(filePath, finalBuffer!);
+      thumbnail.image_url = uploadResult.url;
+      thumbnail.isGenerating = false;
+      await thumbnail.save();
 
-    const uploadResult = await cloudinary.uploader.upload(filePath, {
-      resource_type: "image",
-    });
-
-    thumbnail.image_url = uploadResult.url;
-    thumbnail.isGenerating = false;
-    await thumbnail.save();
-
-    res.json({ message: "Thumbnail Generated", thumbnail });
-
-    //remove image file from disk
-    fs.unlinkSync(filePath);
+      return res.json({ message: "Thumbnail Generated", thumbnail });
+    } catch (uploadErr: any) {
+      console.log("ImageKit upload failed:", uploadErr);
+      thumbnail.isGenerating = false;
+      await thumbnail.save();
+      return res.status(500).json({ message: "Image upload failed", error: uploadErr?.message || uploadErr });
+    }
   } catch (error: any) {
-    console.log(error);
-    res.status(500).json({ message: error.message });
+    console.log("Unexpected error in generateThumbnail:", error);
+    if (thumbnail) {
+      thumbnail.isGenerating = false;
+      await thumbnail.save();
+    }
+    if (error?.response?.data) {
+      const parsed = tryParseBufferAsJson(error.response.data);
+      if (parsed) {
+        return res.status(error.response.status || 500).json({ message: "HF Router Error", error: parsed });
+      }
+    }
+    return res.status(500).json({ message: error?.message || "Unknown server error" });
   }
 };
 
-//Controllers for Thumbnail Deletion
-
+/* -------------------------
+   Delete controller
+   ------------------------- */
 export const deleteThumbnail = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const {userId} = req.session;
+    const { userId } = req.session;
 
-    await Thumbnail.findByIdAndDelete({_id: id, userId})
+    await Thumbnail.findByIdAndDelete({ _id: id, userId });
 
-
- res.json({ message: "Thumbnail Deleted Successfully"});
+    res.json({ message: "Thumbnail Deleted Successfully" });
   } catch (error: any) {
-    console.log(error);
+    console.log("deleteThumbnail error:", error);
     res.status(500).json({ message: error.message });
   }
 };
