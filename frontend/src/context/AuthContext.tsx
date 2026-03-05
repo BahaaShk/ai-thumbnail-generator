@@ -31,21 +31,61 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  const signUp = async ({name,email,password}: {name:string , email:string, password: string}) => {
+  const signUp = async ({
+    name,
+    email,
+    password,
+  }: {
+    name: string;
+    email: string;
+    password: string;
+  }) => {
     try {
-      const {data} = await api.post('/api/auth/register', {name,email,password});
-      if(data.user){
-        setUser(data.user as IUser)
-        setIsLoggedIn(true)
+      const { data } = await api.post("/api/auth/register", {
+        name,
+        email,
+        password,
+      });
+      if (data.user) {
+        setUser(data.user as IUser);
+        setIsLoggedIn(true);
       }
-      toast.success(data.message)
+      toast.success(data.message);
     } catch (error) {
       console.log(error);
-      
     }
   };
-  const login = async () => {};
-  const logout = async () => {};
+  const login = async ({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) => {
+        try {
+      const { data } = await api.post("/api/auth/login", {
+        email,
+        password,
+      });
+      if (data.user) {
+        setUser(data.user as IUser);
+        setIsLoggedIn(true);
+      }
+      toast.success(data.message);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  };
+  const logout = async () => {
+            try {
+      const { data } = await api.post("/api/auth/logout");
+      setupMaster(null)
+      toast.success(data.message);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const fetchUser = async () => {};
 
   useEffect(() => {
