@@ -14,7 +14,7 @@ interface AuthContextProps {
     email: string;
     password: string;
   }) => Promise<void>;
-  logOut: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextProps>({
@@ -24,7 +24,7 @@ const AuthContext = createContext<AuthContextProps>({
   setUser: () => {},
   login: async () => {},
   signUp: async () => {},
-  logOut: async () => {},
+  logout: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -55,6 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log(error);
     }
   };
+
   const login = async ({
     email,
     password,
@@ -62,7 +63,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     email: string;
     password: string;
   }) => {
-        try {
+    try {
       const { data } = await api.post("/api/auth/login", {
         email,
         password,
@@ -76,17 +77,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log(error);
     }
   };
-  };
   const logout = async () => {
-            try {
+    try {
       const { data } = await api.post("/api/auth/logout");
-      setupMaster(null)
+      setUser(null);
+      setIsLoggedIn(false);
       toast.success(data.message);
     } catch (error) {
       console.log(error);
     }
   };
-  const fetchUser = async () => {};
+  const fetchUser = async () => {
+        try {
+      const { data } = await api.post("/api/auth/logout");
+      setUser(null);
+      setIsLoggedIn(false);
+      toast.success(data.message);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     (async () => {
