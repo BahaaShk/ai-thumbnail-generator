@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import type { IUser } from "../assets/assets";
 import api from "../configs/api";
 import toast from "react-hot-toast";
@@ -89,10 +89,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
   const fetchUser = async () => {
         try {
-      const { data } = await api.post("/api/auth/logout");
-      setUser(null);
-      setIsLoggedIn(false);
-      toast.success(data.message);
+      const { data } = await api.get("/api/auth/verify");
+      if(data.user){
+        setUser(data.user as IUser);
+        setIsLoggedIn(true);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -115,3 +116,5 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+export const useAuth = () => useContext(AuthContext);
