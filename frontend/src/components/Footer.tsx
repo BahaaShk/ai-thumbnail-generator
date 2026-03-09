@@ -54,7 +54,7 @@ export default function Footer() {
         transition={{ type: "spring", stiffness: 280, damping: 70, mass: 1 }}
       >
         <p className="max-w-60">
-          Making every customer feel valued—no matter the size of your audience.
+          Making every customer feel valued, no matter the size of your audience.
         </p>
         <div className="flex items-center gap-4 mt-3">
           <a
