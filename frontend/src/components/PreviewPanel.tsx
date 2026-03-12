@@ -16,10 +16,30 @@ const PreviewPanel = ({
     "9:16": "aspect-[9/16]",
   } as Record<AspectRatio, string>;
 
-  const onDownload = () => {
+  const onDownload = async () => {
     if (!thumbnail?.image_url) return;
 
-    window.open(thumbnail.image_url, "_blank");
+  try {
+    // Fetch the image as raw binary data
+    const response = await fetch(thumbnail?.image_url);
+    const blob = await response.blob();
+
+    // Create a temporary local URL pointing to that blob
+    const blobUrl = URL.createObjectURL(blob);
+
+    // Create invisible link, point it to the local blob URL
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `${thumbnail?.title || "thumbnail"}.png`; // sets the filename
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    // Clean up the blob URL from memory after download
+    URL.revokeObjectURL(blobUrl);
+  } catch (error) {
+    console.error("Download failed:", error);
+  }
   };
 
   return (
@@ -64,19 +84,19 @@ const PreviewPanel = ({
         )}
 
         {/* empty state  */}
-        {
-          !isLoading && !thumbnail?.image_url && (
-            <div className=" absolute inset-0 m-2 flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed border-white/20 bg-black/25">
-              <div className=" max-sm:hidden flex size-20 items-center justify-center rounded-full bg-white/10">
-                <ImageIcon className="size-10 text-white opacity-50" />
-              </div>
-              <div className="px-4 text-center">
-                <p className="text-zinc-200 ">Generate your first thumbnail</p>
-                <p className=" mt-1 text-xs text-zinc-400">Fill put the form and click Generate</p>
-              </div>
+        {!isLoading && !thumbnail?.image_url && (
+          <div className=" absolute inset-0 m-2 flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed border-white/20 bg-black/25">
+            <div className=" max-sm:hidden flex size-20 items-center justify-center rounded-full bg-white/10">
+              <ImageIcon className="size-10 text-white opacity-50" />
             </div>
-          )
-        }
+            <div className="px-4 text-center">
+              <p className="text-zinc-200 ">Generate your first thumbnail</p>
+              <p className=" mt-1 text-xs text-zinc-400">
+                Fill put the form and click Generate
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
