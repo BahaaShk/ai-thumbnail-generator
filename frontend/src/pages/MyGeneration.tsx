@@ -3,9 +3,13 @@ import SoftBackdrop from "../components/SoftBackdrop";
 import { dummyThumbnails, type IThumbnail } from "../assets/assets";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowUpRight, DownloadIcon, TrashIcon } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import api from "../configs/api";
+import toast from "react-hot-toast";
 
 const MyGeneration = () => {
   const navigate = useNavigate();
+  const {isLoggedIn} = useAuth()
   const aspectRatioClassMap: Record<string, string> = {
     "16:9": "aspect-video",
     "1:1": "aspect-square",
@@ -15,8 +19,16 @@ const MyGeneration = () => {
   const [loading, setLoading] = useState(false);
 
   const fetchThumbnails = async () => {
-    setThumbnails(dummyThumbnails as unknown as IThumbnail[]);
-    setLoading(false);
+try {
+  setLoading(true);
+  const {data} = await api.get('/api/user/thumbnails');
+  setThumbnails(data.thumbnails || [])
+} catch (error:any) {
+  console.error(error);
+  toast.error(error?.response?.data?.message || error.message)
+} finally{
+  setLoading(false)
+}
   };
 
   const handleDownload = (image_url: string) => {
