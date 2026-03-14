@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import SoftBackdrop from "../components/SoftBackdrop";
-import { dummyThumbnails, type IThumbnail } from "../assets/assets";
+import {  type IThumbnail } from "../assets/assets";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowUpRight, DownloadIcon, TrashIcon } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
@@ -31,17 +31,48 @@ try {
 }
   };
 
-  const handleDownload = (image_url: string) => {
-    window.open(image_url, "_blank");
+  const handleDownload = async (image_url: string) => {
+      try {
+    // Fetch the image as raw binary data
+    const response = await fetch(image_url);
+    const blob = await response.blob();
+
+    // Create a temporary local URL pointing to that blob
+    const blobUrl = URL.createObjectURL(blob);
+
+    // Create invisible link, point it to the local blob URL
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `thumbnail.png`; // sets the filename
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    // Clean up the blob URL from memory after download
+    URL.revokeObjectURL(blobUrl);
+  } catch (error) {
+    console.error("Download failed:", error);
+  }
   };
 
   const handleDelete = async (id: string) => {
-    console.log(id);
+    try {
+      const confirm = window.confirm("Are you sure you want to delete this thumbnail")
+      if(!confirm) return
+     const {data} = await api.delete(`/api/thumbnail/delete/${id}`)
+     toast.success(data.message)
+     setThumbnails(thumbnails.filter((t) => t._id !== id))
+    } catch (error:any) {
+  console.error(error);
+  toast.error(error?.response?.data?.message || error.message)
+    }
   };
 
   useEffect(() => {
-    fetchThumbnails();
-  }, []);
+    if(isLoggedIn){
+      fetchThumbnails();
+    }
+  }, [isLoggedIn]);
 
   return (
     <>

@@ -17,7 +17,7 @@ export default function HeroSection() {
     return (
         <div className="relative flex flex-col items-center justify-center px-4 md:px-16 lg:px-24 xl:px-32">
             <div className="absolute top-30 -z-10 left-1/4 size-72 bg-indigo-600 blur-[300px]"></div>
-            <motion.a href="https://prebuiltui.com?utm_source=pixels" className="group flex items-center gap-2 rounded-full p-1 pr-3 mt-44 text-indigo-100 bg-indigo-200/15"
+            <motion.div  className="group flex items-center gap-2 rounded-full p-1 pr-3 mt-44 text-indigo-100 bg-indigo-200/15"
                 initial={{ y: -20, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true }}
@@ -27,10 +27,10 @@ export default function HeroSection() {
                     NEW
                 </span>
                 <p className="flex items-center gap-1">
-                    <span>Generate your first thumbnail for free </span>
+                    <span>Generate your thumbnails for free </span>
                     <ChevronRightIcon size={16} className="group-hover:translate-x-0.5 transition duration-300" />
                 </p>
-            </motion.a>
+            </motion.div>
             <motion.h1 className="text-5xl/17 md:text-6xl/21 font-medium max-w-3xl text-center capitalize"
                 initial={{ y: 50, opacity: 0 }}
                 whileInView={{ y: 0, opacity: 1 }}
@@ -55,10 +55,7 @@ export default function HeroSection() {
                 <button onClick={() => navigate('/generate')} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full px-7 h-11">
                     Generate Now
                 </button>
-                <button className="flex items-center gap-2 border border-indigo-900 hover:bg-indigo-950/50 transition rounded-full px-6 h-11">
-                    <VideoIcon strokeWidth={1} />
-                    <span>See how it works</span>
-                </button>
+             
             </motion.div>
 
             <div className="flex flex-wrap justify-center items-center gap-4 md:gap-14 mt-12">
