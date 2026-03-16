@@ -18,8 +18,9 @@ export default function Navbar() {
         viewport={{ once: true }}
         transition={{ type: "spring", stiffness: 250, damping: 70, mass: 1 }}
       >
-        <Link to={"/"}>
-          <img src="/logo.svg" alt="logo" className="h-8.5 w-auto" />
+        <Link to={"/"} className="flex justify-center items-center gap-1">
+          <img src="/favicon.svg" alt="logo" className="h-8.5 w-auto" />
+          <h1 className="text-lg">BahaaShk</h1>
         </Link>
 
         <div className="hidden md:flex items-center gap-8 transition duration-500">
