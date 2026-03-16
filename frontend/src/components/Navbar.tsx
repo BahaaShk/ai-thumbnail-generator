@@ -29,21 +29,14 @@ export default function Navbar() {
           <Link to="/generate" className="hover:text-indigo-800 transition">
             Generate
           </Link>
-          {isLoggedIn ? (
+         
             <Link
               to={"/my-generation"}
               className="hover:text-indigo-300 transition"
             >
               My Generations
             </Link>
-          ) : (
-            <Link to={"#"} className="hover:text-indigo-300 transition">
-              About
-            </Link>
-          )}
-          <Link to="#" className="hover:text-indigo-800 transition">
-            Contact us
-          </Link>
+         
         </div>
 
         <div className="flex items-center gap-2">
@@ -93,9 +86,6 @@ export default function Navbar() {
             About
           </Link>
         )}
-        <Link onClick={() => setIsOpen(false)} to="#">
-          Contact us
-        </Link>
         {isLoggedIn ? (
           <button
             onClick={() => {
