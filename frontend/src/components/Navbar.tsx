@@ -78,15 +78,11 @@ export default function Navbar() {
         <Link onClick={() => setIsOpen(false)} to="/generate">
           Generate
         </Link>
-        {isLoggedIn ? (
+        
           <Link onClick={() => setIsOpen(false)} to={"/my-generation"}>
             My Generations
           </Link>
-        ) : (
-          <Link onClick={() => setIsOpen(false)} to="#">
-            About
-          </Link>
-        )}
+        
         {isLoggedIn ? (
           <button
             onClick={() => {
