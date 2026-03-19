@@ -4,9 +4,16 @@ import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import axios from 'axios'
 
-// Global axios config — applies to every request automatically
-axios.defaults.withCredentials = true;
 axios.defaults.baseURL = import.meta.env.VITE_API_URL;
+
+// Automatically attach JWT token to every request
+axios.interceptors.request.use((config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>

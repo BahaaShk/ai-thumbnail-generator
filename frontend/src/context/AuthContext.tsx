@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import type { IUser } from "../assets/assets";
 import api from "../configs/api";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 interface AuthContextProps {
   isLoggedIn: boolean;
@@ -31,70 +32,87 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-  const signUp = async ({
-    name,
-    email,
-    password,
-  }: {
-    name: string;
-    email: string;
-    password: string;
-  }) => {
+const signUp = async ({
+  name,
+  email,
+  password,
+}: {
+  name: string;
+  email: string;
+  password: string;
+}) => {
+  try {
+    const { data } = await api.post("/api/auth/register", {
+      name,
+      email,
+      password,
+    });
+    if (data.user) {
+      localStorage.setItem("token", data.token);
+      setUser(data.user as IUser);
+      setIsLoggedIn(true);
+    }
+    toast.success(data.message);
+  } catch (error: any) {
+    // Show the backend error message to the user
+    const message = error.response?.data?.message || "Something went wrong";
+    toast.error(message);
+  }
+};
+
+const login = async ({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}) => {
+  try {
+    const { data } = await api.post("/api/auth/login", {
+      email,
+      password,
+    });
+    if (data.user) {
+      localStorage.setItem("token", data.token);
+      setUser(data.user as IUser);
+      setIsLoggedIn(true);
+    }
+    toast.success(data.message);
+  } catch (error: any) {
+    const message = error.response?.data?.message || "Something went wrong";
+    toast.error(message);
+  }
+};
+
+const navigate = useNavigate()
+  const logout = async () => {
     try {
-      const { data } = await api.post("/api/auth/register", {
-        name,
-        email,
-        password,
-      });
-      if (data.user) {
-        setUser(data.user as IUser);
-        setIsLoggedIn(true);
-      }
+      const { data } = await api.post("/api/auth/logout");
+      // Remove token from localStorage on logout
+      localStorage.removeItem("token");
+      setUser(null);
+      setIsLoggedIn(false);
+      navigate('/')
       toast.success(data.message);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const login = async ({
-    email,
-    password,
-  }: {
-    email: string;
-    password: string;
-  }) => {
+  const fetchUser = async () => {
     try {
-      const { data } = await api.post("/api/auth/login", {
-        email,
-        password,
-      });
+      // Only fetch if token exists — avoids unnecessary 401 errors on load
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const { data } = await api.get("/api/auth/verify");
       if (data.user) {
         setUser(data.user as IUser);
         setIsLoggedIn(true);
       }
-      toast.success(data.message);
     } catch (error) {
-      console.log(error);
-    }
-  };
-  const logout = async () => {
-    try {
-      const { data } = await api.post("/api/auth/logout");
-      setUser(null);
-      setIsLoggedIn(false);
-      toast.success(data.message);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  const fetchUser = async () => {
-        try {
-      const { data } = await api.get("/api/auth/verify");
-      if(data.user){
-        setUser(data.user as IUser);
-        setIsLoggedIn(true);
-      }
-    } catch (error) {
+      // Token is expired or invalid — clean it up silently
+      localStorage.removeItem("token");
       console.log(error);
     }
   };
@@ -104,6 +122,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await fetchUser();
     })();
   }, []);
+
   const value = {
     user,
     setUser,

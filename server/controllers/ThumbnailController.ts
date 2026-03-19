@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Thumbnail from "../models/Thumbnail.js";
 import imagekit from "../config/imagekit.js";
 import { InferenceClient } from "@huggingface/inference";
+import mongoose from "mongoose";
 
 const stylePrompts = {
   "Bold & Graphic":
@@ -36,7 +37,9 @@ const colorSchemeDescriptions = {
 
 export const generateThumbnail = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.session;
+    // req.userId is a plain string — convert to ObjectId for MongoDB
+    const userId = new mongoose.Types.ObjectId(req.userId);
+
     const {
       title,
       prompt: user_prompt,
@@ -58,7 +61,7 @@ export const generateThumbnail = async (req: Request, res: Response) => {
       isGenerating: true,
     });
 
-    // Build prompt — include aspect ratio as a hint to the model
+    // Build prompt
     let prompt = `Create a ${stylePrompts[style as keyof typeof stylePrompts]} for: "${title}" `;
 
     if (color_scheme) {
@@ -69,7 +72,6 @@ export const generateThumbnail = async (req: Request, res: Response) => {
       prompt += `Additional details: ${user_prompt} `;
     }
 
-    // Pass aspect ratio as a prompt hint since free tier ignores target_size
     prompt += `Compose the image for a ${aspect_ratio} aspect ratio. Make it visually stunning and designed to maximize click-through rate. Bold, professional, and impossible to ignore.`;
 
     // Initialize HF Inference Client
@@ -100,8 +102,6 @@ export const generateThumbnail = async (req: Request, res: Response) => {
       fileName: filename,
     });
 
-    console.log("ImageKit upload result:", uploadResult);
-
     thumbnail.image_url = uploadResult.url;
     thumbnail.prompt_used = prompt;
     thumbnail.isGenerating = false;
@@ -117,7 +117,8 @@ export const generateThumbnail = async (req: Request, res: Response) => {
 export const deleteThumbnail = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { userId } = req.session;
+    // req.userId is a plain string — convert to ObjectId for MongoDB
+    const userId = new mongoose.Types.ObjectId(req.userId);
 
     await Thumbnail.findByIdAndDelete({ _id: id, userId });
 
