@@ -6,7 +6,7 @@ A full-stack web application that generates professional YouTube thumbnails usin
 
 ## 📸 Preview
 
-![Homepage Preview](frontend\public\hero_img.png)
+![Homepage Preview](./frontend/public/hero_img.png)
 
 ---
 
